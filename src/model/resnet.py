@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .utils import init_param, make_batchnorm, loss_fn
-# from config import cfg
+from config import cfg
 
 
 class Block(nn.Module):
@@ -95,6 +95,15 @@ class ResNet(nn.Module):
 
 
 def resnet9(momentum=None, track=False):
+    """Implements the ResNet9 architecture.
+
+    Args:
+        momentum (_type_, optional): Momentum for making batch norm. Defaults to None.
+        track (bool, optional): True to track the running stats. Defaults to False.
+
+    Returns:
+        model : model of the required ResNet architecture
+    """
     data_shape = cfg['data_shape']
     target_size = cfg['target_size']
     hidden_size = cfg['resnet9']['hidden_size']
@@ -105,9 +114,18 @@ def resnet9(momentum=None, track=False):
 
 
 def resnet18(momentum=None, track=False):
-    data_shape = (10, 26, 26)
-    target_size = 10
-    hidden_size = (16, 16, 16, 16)
+    """Implements the ResNet18 architecture.
+
+    Args:
+        momentum (_type_, optional): Momentum for making batch norm. Defaults to None.
+        track (bool, optional): True to track the running stats. Defaults to False.
+
+    Returns:
+        model : model of the required ResNet architecture
+    """
+    data_shape = cfg['data_shape']
+    target_size = cfg['target_size']
+    hidden_size = cfg['resnet18']['hidden_size']
     model = ResNet(data_shape, hidden_size, Block, [2, 2, 2, 2], target_size)
     model.apply(init_param)
     model.apply(lambda m: make_batchnorm(m, momentum=momentum, track_running_stats=track))
