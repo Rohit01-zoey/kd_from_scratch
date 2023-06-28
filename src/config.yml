@@ -1,0 +1,10 @@
+data_name : 'CIFAR10'
+
+data_shape : (10, 26, 26)
+target_shape : 10
+num_workers : 0
+batch_size : 128
+teacher :  
+  name : 'ResNet18'
+  hidden_size : (16, 16, 16, 16)
+  
