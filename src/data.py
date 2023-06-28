@@ -7,7 +7,7 @@ import numpy as np
 from torchvision import transforms
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.dataloader import default_collate
-
+from config import cfg
 
 
 
@@ -76,3 +76,20 @@ def fetch_dataset(data_name):
         raise ValueError('Not valid dataset name')
     print('Data ready')
     return dataset
+
+
+def make_dataloader(dataset, batch_size, shuffle=True):
+    dataloader = {}
+    for k in dataset.keys():
+        dataloader[k] = DataLoader(dataset[k].data, batch_size=batch_size, shuffle=shuffle,
+                                num_workers=cfg['num_workers'], pin_memory=True)
+    return dataloader
+
+# class kd_dataclass():
+#     def __init__(self, dataset):
+#         kd_dataset = {}
+#         for k in dataset.keys():
+#             self.data = []
+#             self.hard_targets = []
+#             self.soft_targets = []
+#             for (data_iter, targets) in iter(dataset[k])
