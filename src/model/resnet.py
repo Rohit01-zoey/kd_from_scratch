@@ -83,10 +83,10 @@ class ResNet(nn.Module):
         x = self.linear(x)
         return x
 
-    def forward(self, input):
+    def forward(self, input, tag):
         output = {}
         output['target'] = self.f(input['data'])
-        if 'loss_mode' in input:
+        if tag == 'teacher':
              output['loss'] = loss_fn(output['target'], input['target'])
         else:
             if not torch.any(input['target'] == -1):
@@ -113,19 +113,20 @@ def resnet9(momentum=None, track=False):
     return model
 
 
-def resnet18(momentum=None, track=False):
+def resnet18(tag = "teacher", momentum=None, track=False):
     """Implements the ResNet18 architecture.
 
     Args:
+        tag(str): tag for the model.Required, could be 'teacher'|'student'
         momentum (_type_, optional): Momentum for making batch norm. Defaults to None.
         track (bool, optional): True to track the running stats. Defaults to False.
 
     Returns:
         model : model of the required ResNet architecture
     """
-    data_shape = cfg['data_shape']
-    target_size = cfg['target_size']
-    hidden_size = cfg['resnet18']['hidden_size']
+    data_shape = (10, 26, 26) #cfg['data_shape']
+    target_size = 10 #cfg['target_size']
+    hidden_size = (16, 16, 16, 16) #cfg[tag]['hidden_size']
     model = ResNet(data_shape, hidden_size, Block, [2, 2, 2, 2], target_size)
     model.apply(init_param)
     model.apply(lambda m: make_batchnorm(m, momentum=momentum, track_running_stats=track))
