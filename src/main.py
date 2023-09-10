@@ -18,12 +18,14 @@ data_name = cfg['data_name']
 data = fetch_dataset(data_name)
 # print(data['train'].transform)
 
-# res = resnet18()
+res = resnet18()
 # res.summary()
 
 dataloaded = make_dataloader(data, batch_size = cfg['batch_size'], shuffle = False)
 print(dataloaded['train'])
 
 for (index, data) in enumerate(dataloaded['train']):
-    print(data)
-    break
+    input_ = {}
+    input_['data'] = data[0]
+    input_['target'] = data[1]
+    output_ = res(input_) # getting the output of the batch

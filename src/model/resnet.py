@@ -83,18 +83,29 @@ class ResNet(nn.Module):
         x = self.linear(x)
         return x
 
-    def forward(self, input, tag):
+    def forward(self, input, tag, **kwargs):
+        """Performs the forward pass of the model and returns the output as dictionary with the logits as well as the loss if the tag is 'teacher' or 'student'
+
+        Args:
+            input (dict): Dictionary containing the input data and the target
+            tag (str): The tag of the model. Should be 'teacher' or 'student'
+
+        Raises:
+            ValueError: Raise error if the tag is not 'teacher' or 'student'
+
+        Returns:
+            dict: Returns the output as dictionary with the logits (key = 'target') as well as the loss (key = 'loss')
+        """
         output = {}
-        output['target'] = self.f(input['data'])
-        if tag == 'teacher':
-             output['loss'] = loss_fn(output['target'], input['target'])
+        output['target'] = F.softmax(self.f(input['data']), dim = -1) # take the softmax to get the logits
+        if tag in ['teacher', 'student']:
+            output['loss'] = loss_fn(output['target'], input['target'], **kwargs)
         else:
-            if not torch.any(input['target'] == -1):
-                output['loss'] = loss_fn(output['target'], input['target'])
+            raise ValueError("Not a valid tag. The tag should be 'teacher' or 'student'")
         return output
 
 
-def resnet9(momentum=None, track=False):
+def resnet9(tag = "teacher", momentum=None, track=False):
     """Implements the ResNet9 architecture.
 
     Args:
@@ -106,7 +117,7 @@ def resnet9(momentum=None, track=False):
     """
     data_shape = cfg['data_shape']
     target_size = cfg['target_size']
-    hidden_size = cfg['resnet9']['hidden_size']
+    hidden_size = cfg[tag]['hidden_size']
     model = ResNet(data_shape, hidden_size, Block, [1, 1, 1, 1], target_size)
     model.apply(init_param)
     model.apply(lambda m: make_batchnorm(m, momentum=momentum, track_running_stats=track))
@@ -124,9 +135,9 @@ def resnet18(tag = "teacher", momentum=None, track=False):
     Returns:
         model : model of the required ResNet architecture
     """
-    data_shape = (10, 26, 26) #cfg['data_shape']
-    target_size = 10 #cfg['target_size']
-    hidden_size = (16, 16, 16, 16) #cfg[tag]['hidden_size']
+    data_shape = cfg['data_shape']
+    target_size = cfg['target_size']
+    hidden_size = cfg[tag]['hidden_size']
     model = ResNet(data_shape, hidden_size, Block, [2, 2, 2, 2], target_size)
     model.apply(init_param)
     model.apply(lambda m: make_batchnorm(m, momentum=momentum, track_running_stats=track))

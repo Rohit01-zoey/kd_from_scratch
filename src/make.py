@@ -1,25 +1,31 @@
 import argparse
 import itertools
-from config import cfg
+from config import cfg, process_args
 from modules import *
 from model import *
 
-parser = argparse.ArgumentParser(description='config')
-parser.add_argument('--run', default='train', type=str)
-parser.add_argument('--data_name', default='CIFAR10', type=str)
-parser.add_argument('--teacher_model_name', default='resnet18', type=str)
-args = vars(parser.parse_args())
 
-def main():
-    # run = args['run']
-    # data_name = args['data_name']
-    # tag = "teacher"
-    # print(cfg[tag]['hidden_size'])
-    # tacher = Teacher()
-    # print(tacher.model)
-    # #print(run, data_name)
-    odel = resnet18(tag = "teacher", momentum=None, track=False)
+parser = argparse.ArgumentParser(description='cfg')
+for k in cfg:
+    exec('parser.add_argument(\'--{0}\', default=cfg[\'{0}\'], type=type(cfg[\'{0}\']))'.format(k))
+parser.add_argument('--control_name', default=None, type=str)
+args = vars(parser.parse_args())
+process_args(args)
+print(cfg)
+
+
+# def main():
+#     # run = args['run']
+#     # data_name = args['data_name']
+#     # tag = "teacher"
+#     # print(cfg[tag]['hidden_size'])
+#     # tacher = Teacher()
+#     # print(tacher.model)
+#     # #print(run, data_name)
+#     process_args(args)
+#     print(cfg['data_name'])
+#     #odel = resnet18(tag = "teacher", momentum=None, track=False)
     
     
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import model
 
+from metrics import utils
+
 def init_param(m):
     if isinstance(m, nn.Conv2d) and isinstance(m, model.DecConv2d):
         nn.init.kaiming_normal_(m.sigma_weight, mode='fan_out', nonlinearity='relu')
@@ -32,5 +34,18 @@ def make_batchnorm(m, momentum, track_running_stats):
     return m
 
 
-def loss_fn(output, target):
-    return F.cross_entropy(output, target)
+def loss_fn(output, target, tag, **kwargs):
+    """Defines the loss function for the forward pass depending on the tag. If the 'tag' is set to 'teacher', it returns the cross entropy loss. If the 'tag' is set to 'student', it returns the knowledge distillation loss.
+
+    Args:
+        output (tensor): The output logits returned from the forward pass
+        target (tensor): The target labels of the dataset inputted to the forward pass
+        tag (str): The tag of the model. Could be 'teacher' or 'student'
+
+    Returns:
+        float: The loss value depending on the tag
+    """
+    if tag=='teacher':
+        return utils.ce_loss(output, target)
+    elif tag=='student':
+        return utils.kd_loss(output, target, T = kwargs['T'], alpha = kwargs['alpha'])
